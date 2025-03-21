@@ -26,7 +26,7 @@ async fn ex2_second_task() -> String {
 }
 
 async fn ex3() -> String {
-    let response = reqwest::get("https://m.media-amazon.com/images/S/msdev-rouleur-test/bruce.jpg")
+    let response = reqwest::get("https://example.com")
         .await
         .unwrap();
 
