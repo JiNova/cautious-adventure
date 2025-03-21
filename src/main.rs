@@ -1,45 +1,62 @@
-async fn ex1() -> String {
-    //TODO: sleep asynchronously for one second
+use std::num::ParseIntError;
+
+use axum::{Json, Router, extract::Path, http::StatusCode, response::IntoResponse, routing::get};
+use serde::Serialize;
+
+//TODO: respond with a message as `text/plain`
+async fn ex1() -> ??? {
     todo!();
-    String::from("Hello from Tokio!")
 }
 
-async fn ex2() -> String {
-    let task1 = tokio::spawn(async {
-        //sleep for one second and return a message
-        todo!()
-    });
+#[derive(Serialize)]
+struct Ex2Response {
+    param: String,
+}
 
-    let task2 = tokio::spawn(ex2_second_task());
-
-    //TODO: await both tasks concurrently (hint: tokio::join!())
-    //TODO: return both messages as combined string (hint: format!())
+//TODO: extract an argument, `param`, from the path and return
+//it with the above struct as a json response
+async fn ex2(???) -> ??? {
     todo!()
 }
 
-async fn ex2_second_task() -> String {
-    //sleep for two seconds, then return a different message
+//TODO: extract an argument, `tea_time`, from the path and try
+//to parse it into an i32
+// - if you can convert it into a number AND the value is between 1 and 12, return `HTTP 200`.
+// - if it's not a valid number, return an `HTTP 400` with a text message,
+//   describing the issue UNLESS the argument is "coffee", then return `HTTP 418`
+// - if the number is negative, return an `HTTP 400` with a text message,
+//   describing the issue.
+async fn ex3(Path(tea_time): Path<String>) -> impl IntoResponse {
+    let tea_time_as_num: Result<i32, ParseIntError> = tea_time.parse::<i32>();
+
     todo!()
 }
 
-async fn ex3() -> String {
+async fn ex4() -> StatusCode {
+    let client = reqwest::Client::new();
     //TODO: Make an HTTP request
-    //Hint: https://docs.rs/reqwest/latest/reqwest/fn.get.html
     todo!();
 
-    //TODO: Return the response's status code as a String.
+    //TODO: Return `HTTP 200` if the status code form your request was `200`,
+    //otherwise, return `HTTP 500`. No response body necessary, just the status code.
     todo!()
+
+    //BONUS: Creating a new HTTP client every request is kind of wasteful. Anyway we can avoid that?
+    //Will require changes to this handler, as well as the Router in `main()`
 }
 
 #[tokio::main]
 async fn main() {
-    let result1 = ex1();
-    let result2 = ex2();
-    let result3 = ex3();
+    tracing_subscriber::fmt::init();
 
-    //TODO: hmmm, something does not seem right.
-    println!(
-        "Result 1: {}, Result 2: {}, Result 3: {}", //do not change this line
-        result1, result2, result3
-    );
+    let app = Router::new()
+        .route("/ex1", get(ex1))
+        .route("/ex2/{param}", get(ex2))
+        .route("/ex3/{tea_time}", get(ex3))
+        .route("/ex4", get(ex4));
+
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:8080")
+            .await
+            .unwrap();
+        axum::serve(listener, app).await.unwrap();
 }
